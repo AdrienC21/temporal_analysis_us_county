@@ -1,0 +1,5 @@
+setwd("C:/Users/acarr/Documents/MIT Internship/American Communities")
+install.packages("cdcfluview")
+library("cdcfluview")
+data(hhs_regions)
+write.csv(hhs_regions, "hhs_regions.csv", fileEncoding="UTF-8")

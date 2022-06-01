@@ -133,3 +133,46 @@ dmypy.json
 
 # SBATCH log
 *.out
+
+###########
+# Files specific to this project, already processed, heavy, etc
+###########
+
+# precincts-with-results.geojson
+# precincts-with-results.geojson.gz
+# .Rhistory
+# csse_covid_19_daily_reports.zip
+# COVID-19-master.zip
+# /CDCWonder/excess_mortality_bayesian_models/results/
+# /CDCWonder/.Rproj.user/
+
+# Plot folder
+# /Plot
+
+# Archive folder with saves
+/Archives
+.Rproj.user
+
+# All folders and data files
+COVID-19-master.zip
+csse_covid_19_daily_reports.zip
+precincts-with-results.geojson
+precincts-with-results.geojson.gz
+.Rhistory
+hhs_regions.csv
+incarceration_trends.csv
+International_Report_Passengers.csv
+OxCGRT_latest.csv
+political_leaning.csv
+state_id.csv
+us_county_coordinates.csv
+us-airports.csv
+us-county-boundaries.csv
+wastewater_by_county.csv
+/Plot
+/PLACES
+/COVID-19_JHU_data
+/CDCWonder
+/Alt_data
+/Center_for_Medicare_and_Medicaid_Services
+/American_Community_Survey_-_United_States_Census
