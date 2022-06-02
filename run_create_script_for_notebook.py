@@ -8,9 +8,24 @@ script run_script_to_notebook.py
 type_data_list = ["COVID-19", "All Causes", "Excess Mortality"]
 features_list = [("political_leaning", "Political Leaning", 0, -0.5, 0.5),
                  ("obesity", "Obesity %", 35, None, None),
-                 ("pct_jail", "Jail population %", 0, None, None),
-                 ("pct_nursing", "Nursing population %", 0, None, None),
-                 ("income", "Median Household Income", 0, None, None)]
+                 ("pct_jail", "Jail Population %", 0, None, None),
+                 ("pct_nursing", "Nursing Population %", 0, None, None),
+                 ("income", "Median Household Income", 0, None, None),
+                 ("min_distance_top_airport", "Median Household Income", 0, None, None),
+                 ("pct_black", "Black Population %", 0, None, None),
+                 ("pct_hispanic", "Hispanic Population %", 0, None, None),
+                 ("education", "High school education %", 0, None, None),
+                 ("under_19", "Age under 19 %", 0, None, None),
+                 ("over_65", "Age over 65 %", 0, None, None),
+                 ("log_crowding", "Log House Crowding", 0, None, None),
+                 ("log_pop_density", "Log Population Density", 0, None, None),
+                 ("ses_punemployed", "Unemployement %", 0, None, None),
+                 ("ses_ppoverty", "Poverty %", 0, None, None),
+                 ("sv_pmobilehome", "Mobile Home %", 0, None, None),
+                 ("hc_hospitals_per1000", "Hospitals per 1000", 0, None, None),
+                 ("hc_icubeds_per1000", "ICU Beds per 1000", 0, None, None),
+                 ("como_asthma", "Comorbidity Asthma per 100k", 0, None, None),
+                 ("StringencyIndex1_mean", "Stringency Index (mean) Period 1", 0, None, None)]
 SHOW_FIGURES = False
 
 script = """
@@ -69,6 +84,23 @@ acp_dic = {1: "Exurbs",
            13: "Aging Farmlands",
            14: "Big Cities",
            15: "Middle Suburbs"}
+
+# _r to reverse the color scale
+feature_color_scale_dic = {"HHS Region": "rainbow",
+                           "pct_jail": "reds",
+                           "pct_nursing": "picnic",
+                           "over_65": "tropic",
+                           "education": "spectral",
+                           "min_distance_top_airport": "thermal",
+                           "log_crowding": "greens",
+                           "log_pop_density": "brwnyl",
+                           "income": "blues",
+                           "obesity": "teal",
+                           "pct_black": "oranges",
+                           "pct_hispanic": "purples",
+                           "acp": acp_dic,
+                           "political_leaning": "rdbu_r",
+                           "StringencyIndex1_mean": "Viridis"}
 
 #| Execute the cells below to directly import the datasets (instead of calculate everything)
 
@@ -166,7 +198,7 @@ counties_json["features"] = list_of_geo
 
 def create_custom_choropleth(county_database, counties_json, label_col,
                              label_display, color_continuous_scale=None,
-                             range_color=None):
+                             range_color=None, show_figures=True):
   if range_color is None:
     range_color_min = county_database[label_col].min()
     range_color_max = county_database[label_col].max()
@@ -182,7 +214,10 @@ def create_custom_choropleth(county_database, counties_json, label_col,
                       title="USA by {}".format(label_display)
                       )
   fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-  fig.show()
+  filename = "Plot/Analysis/choropleth_" + label_col + "_national.png"
+  fig.write_image(filename)
+  if show_figures:
+    fig.show()
 
 #| Custom function to plot the scatter plots with trends
 
@@ -463,6 +498,21 @@ fig.write_image("Plot/Analysis/boxplot_{feature}_national.png")
 fig.show()
 """
 
+    # add choropleth
+    s += f"""
+#| Choropleth
+
+color_continuous_scale = feature_color_scale_dic["{feature}"]
+label_col = "{feature}"
+label_display = "{feature_name}"
+create_custom_choropleth(county_database2_imputed, counties_json, label_col,
+                         label_display, color_continuous_scale,
+                         show_figures={SHOW_FIGURES})
+
+#| Scatter plots
+"""
+
+    # add scatter plots
     for type_data in type_data_list:
 
       s += f"""
@@ -498,6 +548,8 @@ custom_scatter_plot_stringency(type_data="Excess Mortality",
 
 script += """
 #| ## Analysis at the community level
+
+#| Pie charts
 
 import plotly.express as px
 import math
@@ -536,10 +588,16 @@ if SHOW_FIGURES:
 fig.show()
 """
 
-script += """
-#| Scatter plots
-"""
+script += f"""
+#| Choropleth
 
+color_continuous_scale = feature_color_scale_dic["acp"]
+label_col = "acp"
+label_display = "American Communities"
+create_custom_choropleth(county_database2_imputed, counties_json, label_col,
+                         label_display, color_continuous_scale,
+                         show_figures={SHOW_FIGURES})
+"""
 
 def add_to_script_communities(feature, feature_name, cmid, min_val, max_val):
     global SHOW_FIGURES
@@ -572,6 +630,10 @@ fig.write_image("Plot/Analysis/boxplot_{feature}_communities.png")
     if SHOW_FIGURES:
       s += """
 fig.show()
+"""
+
+    s += """
+#| Scatter plots
 """
 
     for acp_nb in range(1, 16):
